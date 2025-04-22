@@ -1,0 +1,75 @@
+<html>
+<head>
+  <!-- <script src="https://js1.chargebee.com/v2/chargebee.js" data-cb-layout="full_page"></script> -->
+  <script src="https://js.chargebee.com/v2/chargebee.js" data-cb-layout="full_page"></script>
+  <!-- <script src="https://js.predev.in/v2/chargebee.js" data-cb-layout="full_page"></script> -->
+  <!-- <script src="http://localhost:9443/v2/chargebee.js" data-cb-layout="in_app"></script></script> -->
+ 
+  <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script> -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+
+<body style="background-color: #000000">
+  <div id="app">
+    <br />
+    <a href="javascript:void(0)" id="cb-portal" data-cb-type="portal">Sample Portal</a>
+    <a href="javascript:void(0)" id="cb-checkout" data-cb-type="checkout" data-cb-layout="full_page">Sample Checkout</a>
+    <br />
+  </div>
+  <script>
+    $(document).ready(function () {
+    //   var cbInstance = window.Chargebee.init({ site: "sourabh-charge-1-test" });
+     var cbInstance = window.Chargebee.init({ site: "sourabh02-test" });
+    
+      cbInstance.setPortalSession(() => {
+        return $.ajax({
+          method: "post",
+          url: "http://localhost:8012/api/generate_portal_session",
+        });
+      });
+
+      $("#cb-portal").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        cbInstance.createChargebeePortal().openSection(
+          {
+            sectionType: 'sub_details',
+            params: {
+               subscriptionId: "169zVMUgQi0Vv2T4L",
+              // subscriptionId: "HmfwYwCUgdAUI6FC3",
+            //  subscriptionId: "__dev__KyVn6jUgRyJGD2a",
+            },
+          }
+        );
+      });
+  
+    $("#cb-checkout").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        cbInstance.openCheckout({
+            hostedPage: function () {
+                return new Promise((resolve, reject) => {
+                    // provide your server URL below
+                    fetch("http://localhost:8012/api/generate_pcnew", {
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        method: "POST",
+                    })
+                        .then((response) => response.json())
+                        .then((hostedPage) => {
+                            console.log("Hosted Page Response:", hostedPage); 
+                            resolve(hostedPage);
+                        });
+                });
+            },
+        });
+     
+      });
+    });
+  </script>
+</body>
+
+</html>
